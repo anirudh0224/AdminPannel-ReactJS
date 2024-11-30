@@ -30,21 +30,21 @@ function Login() {
             return;
         }
 
-        axios.post('https://interviewhub-3ro7.onrender.com/admin/login', value,{
+        axios.post('https://interviewhub-3ro7.onrender.com/admin/login', value, {
             "headers": {
                 "x-apikeeda-key": "y1728895429369sdc686385225qs"
-              }
+            }
         })
-        .then((res) => {
-            console.log(res.data.token);
-            localStorage.setItem("isLoggedIn",res.data.token);
-            navigate('/dash');
-        })
-        .catch((err) => {
-            console.log(err);
-            alert("first of all register your details");
-            navigate('/signup');
-        })
+            .then((res) => {
+                console.log(res.data.token);
+                localStorage.setItem("isLoggedIn", res.data.token);
+                navigate('/dash');
+            })
+            .catch((err) => {
+                console.log(err);
+                alert("first of all register your details");
+                navigate('/signup');
+            })
 
     }
     const handelForm = (e) => {
@@ -70,7 +70,7 @@ function Login() {
                                 </Box>
                             </div>
                             <Stack spacing={2} direction="row">
-                                <Button type='submit' variant="contained">Submit</Button>
+                                <Button type='submit' variant="contained">Login</Button>
                             </Stack>
                         </form>
                     </div>
