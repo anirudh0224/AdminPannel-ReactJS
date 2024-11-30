@@ -1,38 +1,129 @@
-.App {
-  text-align: center;
+* {
+  margin: 0;
+  padding: 0;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+.mainBox {
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
+}
+
+.box {
+  position: relative;
+  top: 10rem;
+  width: 30vw;
+  height: 280px;
+  border: 2px solid rgb(22, 103, 235);
+  border-radius: 30px;
+  box-shadow: 0px 0px 5px 1px rgba(22, 103, 235, .7);
+  padding: 20px;
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgb(22, 103, 235);
+  font-size: 40px;
+}
+
+.css-xn6ruc>:not(style) {
+  width: 95% !important;
+}
+
+.css-xn6ruc {
+  width: 90% !important;
+  margin: 10px 0px !important;
+}
+
+.css-pl8gqh-MuiStack-root {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.InputField {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.mainSidebar {
+  height: 100vh;
+  width: 250px;
+  border: 1px solid rgba(0, 0, 0, .3);
+}
+
+.headData {
+  background-color: rgba(22, 103, 235, .9);
+  height: 60px;
+  display: flex;
+  align-items: center;
+  padding: 0px 20px 0px;
+  /* justify-content: center; */
+}
+
+.ListData {
+  text-decoration: none;
+  display: flex;
+  list-style: none;
+  font-size: 20px;
+  color: #000000DE;
+}
+
+.orderList {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* .dashboard{
+  position: absolute;
+  width: ;
+  left:16.6%;
+  top: 0%;
+  position: relative;
+} */
+.dashHeader {
+  padding: 15px 0px 15px 15px;
   color: white;
+  font-size: 17px;
 }
 
-.App-link {
-  color: #61dafb;
+.dashContents {
+  width: 100%;
+  background-color: rgba(22, 103, 235, .9);
+  height: 60px;
+  border: 1px solid white;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.b1-33 {
+  width: 33.33%;
+  height: 150px;
+  box-shadow: 0px 0px 5px 3px rgba(108, 107, 107, 0.3);
+  border-radius: 10px;
+}
+
+.css-28116y-MuiAutocomplete-root {
+  width: 80% !important;
+  margin-right: 20px !important;
+}
+
+.css-pl8gqh-MuiStack-root>:not(style):not(style) {
+  width: 200px !important;
+  height: 55px !important;
+}
+
+.css-vf0yke-MuiTable-root {
+  width: 96% !important;
+  margin: auto;
+}
+
+.css-y2ff7i-MuiPaper-root-MuiTableContainer-root {
+  background-color: #ffffff00 !important;
+}
+
+.css-y2ff7i-MuiPaper-root-MuiTableContainer-root{
+  --Paper-shadow: none !important;
 }

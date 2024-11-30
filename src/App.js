@@ -1,25 +1,35 @@
-import logo from './logo.svg';
 import './App.css';
+import Login from './Components/Login';
+import Category from './Components/Category';
+import SubCategory from './Components/Subcategory';
+import QA from './Components/QA';
+import { BrowserRouter,Route, Routes } from 'react-router-dom';
+import Sidebar from './Components/Sidebar';
+import Dashboard from './Components/Dashboard';
+import SignUp from './Components/SignUp';
 
 function App() {
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+      <BrowserRouter>
+        <Routes>
+          <Route index path="/" element={<Login />} />
+          <Route index path="/signup" element={<SignUp/>} />
+
+
+          <Route path='/dash' element={<Sidebar/>}> 
+            <Route index element={<Dashboard/>} />
+            <Route path='/dash/category' element={<Category />} />
+            <Route path='sub-category' element={<SubCategory />} />
+            <Route path='qa' element={<QA />} />
+          </Route>
+        </Routes>
+      </BrowserRouter >
+      
+    </>
   );
 }
 
 export default App;
+
