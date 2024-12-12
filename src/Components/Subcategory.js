@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
-import SearchCategory from './SearchCategory';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import { styled } from '@mui/material/styles';
@@ -21,145 +20,144 @@ import DialogTitle from '@mui/material/DialogTitle';
 import Box from '@mui/material/Box';
 import axios from 'axios';
 
-
 function SubCategory() {
+    const [open, setOpen] = useState(false);
+    const [category, setCategory] = useState([]);
+    const [newCategory, setNewCategory] = useState("");
+    const [selectedCategory, setSelectedCategory] = useState(null);
+    const [listCategory, setListCategory] = useState([]);
+    const [update, setUpdate] = useState(false);
+    const [SubCatagoryToUpdate, setSubCatagoryToUpdate] = useState(null);
+    const [fillterCat, setFillterCat] = useState([]);
+    const [search, setSearch] = useState("");
 
-    const [open, setopen] = React.useState(false)
-    const [category, setcategory] = useState([])
-    const [Newcategory, setNewCategory] = useState("")
-    const [selectedcategory, setselectedcategory] = useState(null)
-    const [ListCategory, setListCategory] = useState([])
-    const [update, setupdate] = useState(false);
-
-    const handelOpen = () => {
-        setopen(true)
-    }
-    const handelClose = () => {
-        setopen(false)
-        setNewCategory("")
-        setselectedcategory(null)
-        setupdate(false)
-    }
+    const token = localStorage.getItem('isLoggedIn');
 
     useEffect(() => {
+        if (!token) return;
         fetchData();
-        fetchListCategory()
-    }, [])
-    let token = localStorage.getItem('isLoggedIn')
+        fetchListCategory();
+    }, [token]);
+
+    useEffect(() => {
+        const filltered = category.filter((item) =>
+            item.subCatagoryname.toLowerCase().includes(search.toLowerCase()));
+        setFillterCat(filltered);
+    }, [search, category]);
 
     const fetchListCategory = () => {
-        axios.get('https://interviewhub-3ro7.onrender.com/catagory/', {
-            headers: {
-                Authorization: token
-            }
-        })
+        axios
+            .get('https://interviewhub-3ro7.onrender.com/catagory/', {
+                headers: { Authorization: token },
+            })
             .then((res) => {
-                console.log(res.data);
-                const filteredCategories = res.data.data.filter(cat => cat.status === "on");
-                setListCategory(filteredCategories)
+                const filteredCategories = res.data.data.filter((cat) => cat.status === "on");
+                setListCategory(filteredCategories);
             })
-            .catch((err) => {
-                console.log(err);
-            })
-    }
+            .catch((err) => console.error("Error fetching categories:", err));
+    };
+
 
     const fetchData = () => {
-        axios.get('https://interviewhub-3ro7.onrender.com/subcatagory/', {
-            headers: {
-                Authorization: token
-            }
-        })
+        axios
+            .get('https://interviewhub-3ro7.onrender.com/subcatagory/', {
+                headers: { Authorization: token },
+            })
             .then((res) => {
-                console.log(res.data);
-                setcategory(res.data.data);
+                setCategory(res.data.data || []);
             })
-            .catch((err) => {
-                console.log(err);
-            })
-    }
-    const handleRemove = (id) => {
-        axios.delete(`https://interviewhub-3ro7.onrender.com/subcatagory/${id}`, {
-            headers: {
-                Authorization: token
-            }
-        })
-            .then((res) => {
-                console.log(res.data);
-                fetchData()
-            })
-            .catch((err) => {
-                console.log(err);
-            })
-    }
+            .catch((err) => console.error("Error fetching subcategories:", err));
+    };
 
-    const handelAdd = (e) => {
-        e.preventDefault()
-        if (!selectedcategory) {
-            alert("please select category before submitting");
+    const handleUpdateData = (val) => {
+        setNewCategory(val.subCatagoryname);
+        setSelectedCategory(listCategory.find((cat) => cat._id === val.catagoryID));
+        console.log("==============", val._id);
+        setSubCatagoryToUpdate(val);
+        setUpdate(true);
+        setOpen(true);
+    };
+
+    const handleAddOrUpdate = (e) => {
+        e.preventDefault();
+
+        if (!selectedCategory) {
+            alert("Please select a category before submitting.");
             return;
         }
-        const newsubcat = {
-            subCatagoryname: Newcategory,
-            categoryID: selectedcategory?._id,
-        }
-        console.log(newsubcat);
 
-        if (update && selectedcategory) {
-            axios.patch(`https://interviewhub-3ro7.onrender.com/subcatagory/${selectedcategory._id}`,newsubcat,{
-                headers: {
-                    Authorization: token
-                }
+        const payload = {
+            subCatagoryname: newCategory,
+            catagoryID: selectedCategory._id,
+        };
+
+        if (update) {
+
+            axios
+                .patch(`https://interviewhub-3ro7.onrender.com/subcatagory/${SubCatagoryToUpdate._id}`, payload, {
+                    headers: { Authorization: token },
+                })
+                .then((res) => {
+                    console.log("update response==", res.data);
+                    if (res.data.status === "success") {
+                        alert("Subcategory updated successfully.");
+                        fetchData();
+                        handleClose();
+                    } else {
+                        alert("Failed to update subcategory.");
+                    }
+                })
+                .catch((err) => console.error("Error updating subcategory:", err));
+        } else {
+
+            axios
+                .post('https://interviewhub-3ro7.onrender.com/subcatagory/create', payload, {
+                    headers: { Authorization: token },
+                })
+                .then((res) => {
+                    alert("Subcategory added successfully.");
+                    fetchData();
+                    handleClose();
+                })
+                .catch((err) => console.error("Error creating subcategory:", err));
+        }
+    };
+
+
+    const handleRemove = (id) => {
+        axios
+            .delete(`https://interviewhub-3ro7.onrender.com/subcatagory/${id}`, {
+                headers: { Authorization: token },
+            })
+            .then(() => {
+                alert("Subcategory deleted successfully.");
+                fetchData();
+            })
+            .catch((err) => console.error("Error deleting subcategory:", err));
+    };
+
+    const handleStatus = (id, currentStatus) => {
+        const updatedStatus = { status: currentStatus ? "off" : "on" };
+        axios
+            .patch(`https://interviewhub-3ro7.onrender.com/subcatagory/${id}`, updatedStatus, {
+                headers: { Authorization: token },
             })
             .then((res) => {
                 console.log(res.data);
-                fetchData()
-                handelClose();
+                fetchData();
             })
-            .catch((err) => {
-                console.log(err);
-            })
-        } else {
-            axios.post('https://interviewhub-3ro7.onrender.com/subcatagory/create', newsubcat, {
-                headers: {
-                    Authorization: token
-                }
-            })
+            .catch((err) => console.error("Error updating status:", err));
+    };
 
-                .then((res) => {
-                    console.log(res.data);
-                    fetchData();
-                    handelClose();
-                })
-                .catch((err) => {
-                    console.log(err);
-                })
-        }
-    }
-    const handelUpdateData = (val) => {
-        setNewCategory(val.subCatagoryname)
-        setselectedcategory(val)
-        setupdate(true)
-        handelOpen()
-    }
-    const handelSearch = (value) => {
-        const option = value
-        axios.get(`https://interviewhub-3ro7.onrender.com/subcatagory/?search=${option}`,{
-            headers: {
-                Authorization: token
-            }
-        })
-        .then((res) => {
-            console.log(res.data);
-            setcategory(res.data.data)
-        })
-        .catch((err) => {
-            console.log(err);
-        })
-    }
-    const handelStatus = () => {
 
-    }
-    const label = { inputProps: { 'aria-label': 'Switch demo' } };
+    const handleOpen = () => setOpen(true);
+    const handleClose = () => {
+        setOpen(false);
+        setNewCategory("");
+        setSelectedCategory(null);
+        setUpdate(false);
+    };
+
 
     const StyledTableCell = styled(TableCell)(({ theme }) => ({
         [`&.${tableCellClasses.head}`]: {
@@ -175,108 +173,94 @@ function SubCategory() {
         '&:nth-of-type(odd)': {
             backgroundColor: theme.palette.action.hover,
         },
-        // hide last border
-        '&:last-child td, &:last-child th': {
-            border: 0,
-        },
     }));
 
-
     return (
-        <>
+        <div style={{ width: '100%' }}>
+            <div className="boxData" style={{ display: 'flex', margin: '20px', alignItems: 'center', justifyContent: 'space-between' }}>
+                <Autocomplete
+                    disablePortal
+                    options={fillterCat} // Filtered categories
+                    onInputChange={(event, value) => setSearch(value)} // Update search value
+                    getOptionLabel={(option) => option.subCatagoryname || ""}
+                    isOptionEqualToValue={(option, value) => option._id === value._id}
+                    sx={{ width: 300 }}
+                    renderInput={(params) => <TextField {...params} label="Search Subcategory" />}
+                    noOptionsText="No matching subcategories"
+                />
+                <Button variant="outlined" onClick={handleOpen}>Add New Subcategory</Button>
 
-            <div style={{ width: '100%' }}>
-
-                <div className="boxData" style={{ display: 'flex', margin: '20px', alignItems: 'center', justifyContent: 'space-between' }}>
-
-                    <Autocomplete
-                        disablePortal
-                        options={category}
-                        onInputChange={handelSearch}
-                        getOptionLabel={(option) => option.subCatagoryname || ""}
-                        sx={{ width: 300 }}
-                        renderInput={(params) => <TextField {...params} label="select category" />}
-                    />
-                    {/* .......... */}
-                    <React.Fragment>
-                        <Button variant="outlined" onClick={handelOpen}>
-                            Open form dialog
-                        </Button>
-                        <Dialog
-                            open={open}
-                            onClose={handelClose}>
-                            <form action="#" onSubmit={handelAdd}>
-                                <DialogTitle>Add New Category</DialogTitle>
-                                <DialogContent>
-                                    <Box
-                                        component="form"
-                                        sx={{ '& > :not(style)': { m: 1, width: '25ch' } }}
-                                        noValidate
-                                        autoComplete="off"
-                                    >
-                                        <TextField id="outlined-basic" label="Outlined" variant="outlined" value={Newcategory} onChange={(e) => setNewCategory(e.target.value)} />
-                                        <Autocomplete
-                                            disablePortal
-                                            options={ListCategory}
-                                            getOptionLabel={(option) => option.catagoryName || ""}
-                                            value={selectedcategory}
-                                            onChange={(e, newValue) => setselectedcategory(newValue)}
-                                            sx={{ width: 300 }}
-                                            renderInput={(params) => <TextField {...params} label="Search Category" />}
-                                        />
-                                    </Box>
-                                </DialogContent>
-                                <Stack spacing={2} direction="row" sx={{ padding: '16px' }}>
-                                    <Button variant="contained" type='submit'>Submit</Button>
-                                    <Button variant="outlined" onClick={handelClose}>
-                                        Cancel
-                                    </Button>
-                                </Stack>
-                            </form>
-                        </Dialog>
-                    </React.Fragment>
-                    {/* ............ */}
-
-                </div>
-                <div>
-                    <TableContainer component={Paper}>
-                        <Table sx={{ minWidth: 700 }} aria-label="customized table">
-                            <TableHead>
-                                <TableRow>
-                                    <StyledTableCell>No</StyledTableCell>
-                                    <StyledTableCell>Sub Category</StyledTableCell>
-                                    <StyledTableCell>Category Name</StyledTableCell>
-                                    <StyledTableCell align="right">Status</StyledTableCell>
-                                    <StyledTableCell align="right">Delete</StyledTableCell>
-                                    <StyledTableCell align="right">Upadte</StyledTableCell>
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
-                                {category.map((row, i) => (
-
-                                    <StyledTableRow key={row._id}>
-                                        <StyledTableCell align="left">{i + 1}</StyledTableCell>
-                                        <StyledTableCell component="th" scope="row">
-                                            {row.subCatagoryname}
-                                        </StyledTableCell>
-                                        <StyledTableCell component="th" scope="row">
-                                            {row.catagoryID?.catagoryName || "No Category"}
-                                        </StyledTableCell>
-                                        <StyledTableCell align="right"><Switch {...label} onChange={() => handelStatus(row._id, row.status)} /></StyledTableCell>
-                                        <StyledTableCell align="right"><Button onClick={() => handleRemove(row._id)}><DeleteIcon /></Button></StyledTableCell>
-                                        <StyledTableCell align="right"><button onClick={() => handelUpdateData(row)}><CreateIcon /></button></StyledTableCell>
-                                    </StyledTableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </TableContainer>
-
-                </div>
+                <Dialog open={open} onClose={handleClose}>
+                    <form onSubmit={handleAddOrUpdate}>
+                        <DialogTitle>{update ? "Update Subcategory" : "Add New Subcategory"}</DialogTitle>
+                        <DialogContent>
+                            <Box sx={{ '& > :not(style)': { m: 1, width: '25ch' } }}>
+                                <TextField
+                                    label="Subcategory Name"
+                                    variant="outlined"
+                                    value={newCategory}
+                                    onChange={(e) => setNewCategory(e.target.value)}
+                                />
+                                <Autocomplete
+                                    disablePortal
+                                    options={listCategory}
+                                    getOptionLabel={(option) => option.catagoryName || ""}
+                                    value={selectedCategory || null}
+                                    onChange={(e, newValue) => setSelectedCategory(newValue)}
+                                    sx={{ width: 300 }}
+                                    renderInput={(params) => <TextField {...params} label="Select Category" />}
+                                />
+                            </Box>
+                        </DialogContent>
+                        <Stack spacing={2} direction="row" sx={{ padding: '16px' }}>
+                            <Button variant="contained" type="submit">Submit</Button>
+                            <Button variant="outlined" onClick={handleClose}>Cancel</Button>
+                        </Stack>
+                    </form>
+                </Dialog>
             </div>
 
-
-        </>
-    )
+            <TableContainer component={Paper}>
+                <Table sx={{ minWidth: 700 }} aria-label="customized table">
+                    <TableHead>
+                        <TableRow>
+                            <StyledTableCell>No</StyledTableCell>
+                            <StyledTableCell>Subcategory Name</StyledTableCell>
+                            <StyledTableCell>Category Name</StyledTableCell>
+                            <StyledTableCell align="right">Status</StyledTableCell>
+                            <StyledTableCell align="right">Delete</StyledTableCell>
+                            <StyledTableCell align="right">Update</StyledTableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {fillterCat.map((row, i) => (
+                            <StyledTableRow key={row._id}>
+                                <StyledTableCell>{i + 1}</StyledTableCell>
+                                <StyledTableCell>{row.subCatagoryname}</StyledTableCell>
+                                <StyledTableCell>{row.catagoryID?.catagoryName || "No Category"}</StyledTableCell>
+                                <StyledTableCell align="right">
+                                    <Switch
+                                        checked={row.status === "on"}
+                                        onChange={() => handleStatus(row._id, row.status === "on")}
+                                    />
+                                </StyledTableCell>
+                                <StyledTableCell align="right">
+                                    <Button onClick={() => handleRemove(row._id)}>
+                                        <DeleteIcon />
+                                    </Button>
+                                </StyledTableCell>
+                                <StyledTableCell align="right">
+                                    <Button onClick={() => handleUpdateData(row)}>
+                                        <CreateIcon />
+                                    </Button>
+                                </StyledTableCell>
+                            </StyledTableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </TableContainer>
+        </div>
+    );
 }
 
-export default SubCategory
+export default SubCategory;
